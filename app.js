@@ -16,7 +16,7 @@ connectDB();
 
 app.use(
   cors({
-    origin: ["billmate-pos.vercel.app"],
+    origin: ["https://billmate-pos.vercel.app"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE"],
