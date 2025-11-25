@@ -13,7 +13,6 @@ const PORT=config.port;
 connectDB();
 
 
-const cors = require("cors");
 
 app.use(
   cors({
