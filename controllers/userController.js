@@ -61,13 +61,15 @@ const login = async (req, res, next) => {
             expiresIn: '1d'
         })
 
-        res.cookie('accessToken', accessToken, {
+        res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: true,
             sameSite: "none",
+            domain: ".onrender.com",       // IMPORTANT FOR RENDER!!!
+            path: "/",
             maxAge: 1000 * 60 * 60 * 24 * 30,
-            path: "/" // VERY IMPORTANT!!!
         });
+
 
 
         res.status(200).json({ success: true, message: "User Login Successfully!", data: isUserPresent })
