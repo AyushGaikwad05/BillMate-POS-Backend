@@ -13,20 +13,17 @@ const PORT=config.port;
 connectDB();
 
 
-const allowedOrigins = ["https://billmate-pos.vercel.app"];
+const cors = require("cors");
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: ["https://billmate-pos.vercel.app"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
 
 app.get("/",(req,res)=>{
      
