@@ -12,8 +12,16 @@ const PORT=config.port;
 
 connectDB();
 app.use(cors({
-    credentials:true, 
-    origin:['https://billmate-pos.vercel.app/']
+    credentials: true,
+    origin: function(origin, callback){
+        const allowedOrigins = ['https://billmate-pos.vercel.app'];
+        if(!origin) return callback(null, true); // allow server-to-server requests or tools like Postman
+        if(allowedOrigins.indexOf(origin) !== -1){
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
 }));
 app.get("/",(req,res)=>{
      
