@@ -13,7 +13,7 @@ const PORT=config.port;
 connectDB();
 app.use(cors({
     credentials:true, 
-    origin:['http://localhost:3000']
+    origin:['https://billmate-pos.vercel.app/']
 }));
 app.get("/",(req,res)=>{
      
