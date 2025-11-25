@@ -61,13 +61,14 @@ const login = async (req, res, next) => {
             expiresIn: '1d'
         })
 
-        res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",   
-            path: "/",
-            maxAge: 1000 * 60 * 60 * 24 * 30,
-        });
+       res.cookie("accessToken", token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/",
+  domain: "billmate-pos.vercel.app", // CRITICAL!!!
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
 
 
 
