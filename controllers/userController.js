@@ -63,6 +63,7 @@ const login = async (req, res, next) => {
       { expiresIn: "1d" }
     );
 
+        console.log("TOken:- ",config.accessTokenSecret); 
     // ---------------------------------------------------
     // ⭐ CORRECT COOKIE SETTING (your main issue)
     // ---------------------------------------------------
