@@ -106,4 +106,33 @@ const logout = async (req, res, next) => {
     }
 }
 
-module.exports = { register, login, getUserData, logout };
+const verifyToken = (req, res, next) => {
+  try {
+    const token = req.cookies.accessToken;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided",
+      });
+    }
+
+    const decoded = jwt.verify(token, config.accessTokenSecret);
+
+    res.status(200).json({
+      success: true,
+      message: "Token valid",
+      userId: decoded._id,
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
+  }
+};
+
+
+
+
+module.exports = { register, login, getUserData, logout,verifyToken };
