@@ -14,12 +14,28 @@ connectDB();
 
 
 
+const allowedOrigins = [
+  "https://billmate-pos.vercel.app",
+  "https://billmate-pos-backend.onrender.com",
+  "http://localhost:3000" // optional for local dev
+];
+
 app.use(
   cors({
-    origin: "https://billmate-pos.vercel.app" || "https://billmate-pos-backend.onrender.com",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 
 
 app.get("/",(req,res)=>{
