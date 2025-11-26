@@ -16,7 +16,7 @@ connectDB();
 
 app.use(
   cors({
-    origin: "https://billmate-pos.vercel.app" || "http://localhost:3000",
+    origin: "https://billmate-pos.vercel.app" || "https://billmate-pos-backend.onrender.com",
     credentials: true,
   })
 );
