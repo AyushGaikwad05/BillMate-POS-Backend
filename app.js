@@ -16,7 +16,7 @@ connectDB();
 
 app.use(
   cors({
-    origin: "https://billmate-pos.vercel.app",
+    origin: "https://billmate-pos.vercel.app" || "http://localhost:3000",
     credentials: true,
   })
 );
