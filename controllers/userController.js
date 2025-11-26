@@ -9,13 +9,13 @@ const register = async (req, res, next) => {
         const { name, phone, email, password, role } = req.body;
         if (!name || !phone || !email || !password || !role) {
             const error = createHttpError(400, "All Fields Are Required!")
-            next(error);
+            return next(error);
         }
 
         const isUserPresent = await User.findOne({ email });
         if (isUserPresent) {
             const error = createHttpError(400, "User Already Exists!");
-            next(error);
+            return next(error);
         }
 
         const user = { name, email, phone, password, role };
