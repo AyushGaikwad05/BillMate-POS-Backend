@@ -21,7 +21,7 @@ app.use(
   })
 );
 
-app.options("*", cors());
+
 app.get("/",(req,res)=>{
      
     res.json({message:"Hello From BillMate Server"})
