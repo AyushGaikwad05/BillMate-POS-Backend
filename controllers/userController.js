@@ -57,13 +57,14 @@ const login = async (req, res, next) => {
             return next(error);
         }
 
-        const accessToken = jwt.sign(
-      { _id: User._id },
-      config.accessTokenSecret,
-      { expiresIn: "1d" }
-    );
+      const accessToken = jwt.sign(
+  { _id: isUserPresent._id },   // ✅ CORRECT
+  config.accessTokenSecret,
+  { expiresIn: "1d" }
+);
 
-        console.log("TOken:- ",config.accessTokenSecret); 
+       console.log("SECRET:", config.accessTokenSecret);
+
     // ---------------------------------------------------
     // ⭐ CORRECT COOKIE SETTING (your main issue)
     // ---------------------------------------------------
@@ -71,7 +72,6 @@ const login = async (req, res, next) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      path: "/",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
