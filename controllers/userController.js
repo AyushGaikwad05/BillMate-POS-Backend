@@ -63,17 +63,17 @@ const login = async (req, res, next) => {
   { expiresIn: "1d" }
 );
 
-       console.log("SECRET:", config.accessTokenSecret);
-
+      
     // ---------------------------------------------------
     // ⭐ CORRECT COOKIE SETTING (your main issue)
-    // ---------------------------------------------------
     res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/",
+  domain: "billmate-pos.vercel.app",  // ⭐ FIX
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
 
 
 
