@@ -71,7 +71,6 @@ const login = async (req, res, next) => {
   secure: true,
   sameSite: "none",
   path: "/",
-  domain: "billmate-pos.vercel.app",  // ⭐ FIX
   maxAge: 30 * 24 * 60 * 60 * 1000,
 });
 
