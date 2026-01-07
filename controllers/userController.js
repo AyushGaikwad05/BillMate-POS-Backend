@@ -33,55 +33,57 @@ const register = async (req, res, next) => {
 }
 
 
+// In your login controller
 const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
 
-    try {
-        const { email, password } = req.body;
+    if (!email || !password) {
+      const error = createHttpError(400, "All Fields Are Required!");
+      return next(error);
+    }
 
-        if (!email || !password) {
-            const error = createHttpError(400, "All Fields Are Required !")
-            return next(error);
+    const isUserPresent = await User.findOne({ email });
 
-        }
+    if (!isUserPresent) {
+      const error = createHttpError(401, "Invalid Credentials");
+      return next(error);
+    }
 
-        const isUserPresent = await User.findOne({ email });
+    const isMatch = await bcrypt.compare(password, isUserPresent.password);
+    if (!isMatch) {
+      const error = createHttpError(401, "Invalid Credentials");
+      return next(error);
+    }
 
-        if (!isUserPresent) {
-            const error = createHttpError(401, "Invalid Credentials");
-            return next(error);
-        }
+    const accessToken = jwt.sign(
+      { _id: isUserPresent._id },
+      config.accessTokenSecret,
+      { expiresIn: "1d" }
+    );
 
-        const isMatch = await bcrypt.compare(password, isUserPresent.password);
-        if (!isMatch) {
-            const error = createHttpError(401, "Invalid Credentials");
-            return next(error);
-        }
-
-      const accessToken = jwt.sign(
-  { _id: isUserPresent._id },   // ✅ CORRECT
-  config.accessTokenSecret,
-  { expiresIn: "1d" }
-);
-
-    
-    // ---------------------------------------------------
-    // ⭐ CORRECT COOKIE SETTING (your main issue)
-    // ---------------------------------------------------
+    // ⭐ UPDATED COOKIE SETTINGS
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/',
+      // ❌ DON'T set domain - let browser handle it
     });
 
+    res.status(200).json({ 
+      success: true, 
+      message: "User Login Successfully!", 
+      data: isUserPresent 
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
 
 
-        res.status(200).json({ success: true, message: "User Login Successfully!", data: isUserPresent })
-
-    } catch (error) {
-        next(error);
-    }
-}
 
 const getUserData = async (req, res, next) => {
 
