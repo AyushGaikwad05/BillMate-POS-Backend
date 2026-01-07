@@ -62,27 +62,32 @@ const login = async (req, res, next) => {
       { expiresIn: "1d" }
     );
 
-    // ⭐ UPDATED COOKIE SETTINGS
+    // ⭐ CRITICAL: Cookie settings for cross-origin
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: true, // HTTPS only
+      sameSite: "none", // Allow cross-site
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       path: '/',
-      // ❌ DON'T set domain - let browser handle it
+      // ⭐ DO NOT set domain - let it default to the requesting domain
     });
 
+    // ⭐ Return success response
     res.status(200).json({ 
       success: true, 
       message: "User Login Successfully!", 
-      data: isUserPresent 
+      data: {
+        _id: isUserPresent._id,
+        name: isUserPresent.name,
+        email: isUserPresent.email,
+        role: isUserPresent.role
+      }
     });
 
   } catch (error) {
     next(error);
   }
 };
-
 
 
 const getUserData = async (req, res, next) => {

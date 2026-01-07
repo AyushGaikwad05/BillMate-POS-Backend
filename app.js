@@ -12,22 +12,28 @@ const PORT = config.port;
 
 connectDB();
 
-// ⭐ MIDDLEWARE ORDER IS CRITICAL - Must be BEFORE routes
-app.set("trust proxy", 1); // Should be first
+// Trust proxy - MUST be first
+app.set("trust proxy", 1);
 
-// CORS must be early
+// ⭐ CORS Configuration - Must be before routes
 app.use(
   cors({
-    origin: "https://billmate-pos.vercel.app", // ✅ Your frontend URL
-    credentials: true, // ✅ Allows cookies
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // ⭐ Add this
-    allowedHeaders: ['Content-Type', 'Authorization'], // ⭐ Add this
+    origin: "https://billmate-pos.vercel.app",
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   })
 );
 
+// ⭐ Handle OPTIONS requests explicitly
+app.options('*', cors());
+
 // Body parsers
 app.use(express.json());
-app.use(cookieParser()); // ✅ Now in correct position
+app.use(cookieParser());
 
 // Test route
 app.get("/", (req, res) => {
