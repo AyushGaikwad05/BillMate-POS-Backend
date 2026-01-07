@@ -1,144 +1,50 @@
-const createHttpError = require("http-errors");
-const User = require("./../models/userModel");
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const config = require('./../config/config.js')
+require("dotenv").config();
+const connectDB = require("./config/database");
+const express = require("express");
+const config = require('./config/config');
+const globalErrorHandler = require("./middlewares/globalErrorHandler");
+const createHttpError = require('http-errors');
+const cors = require("cors"); 
+const cookieParser = require("cookie-parser");
+const app = express();
 
-const register = async (req, res, next) => {
-    try {
-        const { name, phone, email, password, role } = req.body;
-        if (!name || !phone || !email || !password || !role) {
-            const error = createHttpError(400, "All Fields Are Required!")
-            return next(error);
-        }
+const PORT = config.port;
 
-        const isUserPresent = await User.findOne({ email });
-        if (isUserPresent) {
-            const error = createHttpError(400, "User Already Exists!");
-            return next(error);
-        }
+connectDB();
 
-        const user = { name, email, phone, password, role };
-        const newuser = User(user);
-        await newuser.save();
+// Trust proxy - MUST be first
+app.set("trust proxy", 1);
 
-        res.status(201).json({ success: true, message: "New User Created!", data: newuser })
-
-
-    }
-    catch (error) {
-        next(error)
-    }
-
-}
-
-
-// In your login controller
-const login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      const error = createHttpError(400, "All Fields Are Required!");
-      return next(error);
-    }
-
-    const isUserPresent = await User.findOne({ email });
-
-    if (!isUserPresent) {
-      const error = createHttpError(401, "Invalid Credentials");
-      return next(error);
-    }
-
-    const isMatch = await bcrypt.compare(password, isUserPresent.password);
-    if (!isMatch) {
-      const error = createHttpError(401, "Invalid Credentials");
-      return next(error);
-    }
-
-    const accessToken = jwt.sign(
-      { _id: isUserPresent._id },
-      config.accessTokenSecret,
-      { expiresIn: "1d" }
-    );
-
-    // ⭐ CRITICAL: Cookie settings for cross-origin
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true, // HTTPS only
-      sameSite: "none", // Allow cross-site
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      path: '/',
-      // ⭐ DO NOT set domain - let it default to the requesting domain
-    });
-
-    // ⭐ Return success response
-    res.status(200).json({ 
-      success: true, 
-      message: "User Login Successfully!", 
-      data: {
-        _id: isUserPresent._id,
-        name: isUserPresent.name,
-        email: isUserPresent.email,
-        role: isUserPresent.role
-      }
-    });
-
-  } catch (error) {
-    next(error);
-  }
+// ⭐ CORS Configuration - Must be before routes
+const corsOptions = {
+  origin: "https://billmate-pos.vercel.app",
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  exposedHeaders: ['Set-Cookie'],
+  optionsSuccessStatus: 204
 };
 
+app.use(cors(corsOptions));
 
-const getUserData = async (req, res, next) => {
+// Body parsers
+app.use(express.json());
+app.use(cookieParser());
 
-    try {
-        const user = await User.findById(req.user._id);
-        res.status(200).json({ success: true, data: user })
-    } catch (error) {
-        return next(error);
-    }
-}
+// Test route
+app.get("/", (req, res) => {
+    res.json({ message: "Hello From BillMate Server" });
+});
 
+// Routes
+app.use("/api/user", require("./routes/userRoutes"));
+app.use("/api/order", require("./routes/orderRoutes"));
+app.use("/api/tables", require("./routes/tableRoutes"));
+app.use("/api/payement", require("./routes/paymentRoutes"));
 
-const logout = async (req, res, next) => {
-    try {
-        res.clearCookie('accessToken');
-        res.status(200).json({ sucess: true, message: "User logout successfully" });
-    }
+// Global Error Handler (must be last)
+app.use(globalErrorHandler);
 
-    catch (error) {
-        next(error);
-    }
-}
-
-const verifyToken = (req, res, next) => {
-  try {
-    const token = req.cookies.accessToken;
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "No token provided",
-      });
-    }
-
-    const decoded = jwt.verify(token, config.accessTokenSecret);
-
-    res.status(200).json({
-      success: true,
-      message: "Token valid",
-      userId: decoded._id,
-    });
-  } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: "Invalid token",
-    });
-  }
-};
-
-
-
-
-module.exports = { register, login, getUserData, logout,verifyToken };
+app.listen(PORT, () => {
+    console.log("Server Listening On PORT:", PORT);
+});
